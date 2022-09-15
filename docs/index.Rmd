@@ -1,0 +1,1152 @@
+---
+title: "Multivariate Analysis Applications in R"
+
+
+output: 
+  html_document:
+    code_folding: hide
+
+---
+
+```{=html}
+<style>
+.fold-btn { float: right; }
+</style>
+```
+```{=html}
+<script type="text/javascript">
+$(document).ready(function() {
+  $(".fold").prepend("<button class=\"fold-btn\">Code</button>");
+  $(".fold").children("code").toggle();
+  $(".fold-btn").on("click", function() {
+    if($(this).text() === "Code") {
+      $(this).text("Hide");
+    } else {
+      $(this).text("Code");
+    }
+    $(this).next("code").toggle("linear");
+  })
+});
+</script>
+```
+```{=html}
+<style type="text/css">
+h1.title {
+  font-size: 38px;
+  text-align: center;
+}
+</style>
+```
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls(all=TRUE))
+defaultW <- getOption("warn") 
+options(warn = -1) 
+```
+
+#  {.tabset}
+
+## About Information
+
+-   Author: **Jose Carlos Molano de Oro**
+
+-   University: Pontificia Universidad Javeriana
+
+-   Course: Multivariate Analysis
+
+-   Semester: 2022-3
+
+-   Professor: Marisol Garcia Peña
+
+-   Author Email: jose_molano\@javeriana.edu.co
+
+-   Professor Email: marisolgarcia\@javeriana.edu.co
+
+## Hepatitis Disease Dataset
+
+### About the Dataset
+
+Contains Medical Data of 155 people with acute or chronic hepatitis give tbe values of 20 variables for each person that, taken together, could predict whether a patient will die or recover from the disease. (Diaconis & Efron,1983)
+
+### Definitions
+
+#### Hepatitis
+
+Hepatitis means inflammation of the liver. The liver is a vital organ that processes nutrients, filters the blood, and fights infections. When the liver is inflamed or damaged, its function can be affected. Heavy alcohol use, toxins, some medications, and certain medical conditions can cause hepatitis. However, hepatitis is often caused by a virus.
+
+#### Steroids
+
+Steroids are a man-made version of chemicals, known as hormones, that are made naturally in the human body. Steroids are designed to act like these hormones to reduce inflammation.
+
+#### Antivirals
+
+Antivirals are medications that help your body fight off certain viruses that can cause disease. Antiviral drugs are also preventive. They can protect you from getting viral infections or spreading a virus to others.
+
+#### Fatigue
+
+Fatigue is a feeling of constant tiredness or weakness and can be physical, mental or a combination of both. It can affect anyone, and most adults will experience fatigue at some point in their life.
+
+#### Malaise
+
+Malaise is described as any of the following:
+
+-   a feeling of overall weakness
+
+-   a feeling of discomfort
+
+-   a feeling like you have an illness
+
+-   simply not feeling well
+
+#### Anorexia
+
+Anorexia is a potentially life-threatening eating disorder that is characterized by self-starvation and excessive weight loss.
+
+#### Spleen
+
+The spleen is a small organ inside your left rib cage, just above the stomach. It's part of the lymphatic system (which is part of the immune system). The spleen stores and filters blood and makes white blood cells that protect you from infection.
+
+#### Spider Angioma
+
+Spider angioma is an abnormal collection of blood vessels near the surface of the skin.
+
+#### Ascites
+
+Ascites is a buildup of fluid in your abdomen. It often occurs as a result of cirrhosis, a liver disease
+
+#### Varices
+
+Varices are large or swollen blood vessels, which can be located around the esophagus. The most common cause of esophageal varices is scarring of the liver.
+
+#### Bilirubin
+
+Bilirubin is made during the normal process of breaking down red blood cells. It is a yellowish substance found in bile, a fluid in your liver. This fluid helps digest food.
+
+#### ALK Phosphate
+
+Alkaline phosphatase is one kind enzyme found in your body. Enzymes are proteins that help chemical reactions happen. For instance, they can break big molecules down into smaller parts, or they can help smaller molecules join together to form bigger structures.
+
+#### SGOT
+
+Is an enzyme found in the liver, heart, and other tissues. A high level of SGOT released into the blood may be a sign of liver or heart damage, cancer, or other diseases. Also called aspartate transaminase and serum glutamic-oxaloacetic transaminase.
+
+#### Albumin
+
+Albumin is a protein made by the liver. A serum albumin test measures the amount of this protein in the clear liquid portion of the blood.
+
+#### Prothrombin
+
+Prothrombin is a protein produced by your liver. It is one of many factors in your blood that help it to clot appropriately.
+
+### Dataset Description
+
+1.  **Sources**
+
+    -   Unknown
+
+    -   Donor: G.Gong (Carnegie-Mellon University)
+
+        -   via Bojan Cestnik
+
+        -   Jozef Stefan Institute
+
+        -   Jamova 39
+
+        -   61000 Ljubljana
+
+        -   Yugoslavia (tel.: (38)(+61) 214-399 ext.287)
+
+    -   Date: November, 1988
+
+2.  **Past Usage**
+
+    -   Diaconis,P. & Efron,B. (1983). Computer-Intensive Methods in Statistics. Scientific American, Volume 248. -- Gail Gong reported a 80% classfication accuracy
+
+    -   Cestnik,G., Konenenko,I, & Bratko,I. (1987). Assistant-86: A Knowledge-Elicitation Tool for Sophisticated Users. In I.Bratko & N.Lavrac (Eds.) Progress in Machine Learning, 31-45, Sigma Press. -- Assistant-86: 83% accuracy
+
+3.  **Number of Instances: 155**
+
+4.  **Number of Attributes: 20 (including the class attribute)**
+
+5.  **Attribute information**
+
+    -   Class: DIE, LIVE
+
+    -   AGE: 10, 20, 30, 40, 50, 60, 70, 80
+
+    -   SEX: male, female
+
+    -   STEROID: no, yes
+
+    -   ANTIVIRALS: no, yes
+
+    -   FATIGUE: no, yes
+
+    -   MALAISE: no, yes
+
+    -   ANOREXIA: no, yes
+
+    -   LIVER BIG: no, yes
+
+    -   LIVER FIRM: no, yes
+
+    -   SPLEEN PALPABLE: no, yes
+
+    -   SPIDERS: no, yes
+
+    -   ASCITES: no, yes
+
+    -   VARICES: no, yes
+
+    -   BILIRUBIN: 0.39, 0.80, 1.20, 2.00, 3.00, 4.00
+
+    -   ALK PHOSPHATE: 33, 80, 120, 160, 200, 250
+
+    -   SGOT: 13, 100, 200, 300, 400, 500,
+
+    -   ALBUMIN: 2.1, 3.0, 3.8, 4.5, 5.0, 6.0
+
+    -   PROTIME: 10, 20, 30, 40, 50, 60, 70, 80, 90
+
+    -   HISTOLOGY: no, yes
+
+6.  **Missing Attribute Values: (indicated by "?")**
+
+7.  **Class Information**
+
+    -   Die: 32
+
+    -   Live: 123
+
+### Data Curation
+
+#### R Libraries
+
+    library(DT)
+    library(reactablefmtr)
+
+#### Initial Data Table
+
+```{r,include=FALSE}
+library(DT)
+library(dplyr)
+library(MVA)
+library(e1071)
+library(scatterplot3d)
+library(Hmisc)
+library(psych)
+library(ICSNP)
+library(mvtnorm)
+library(corrplot)
+library(ggplot2)
+library(GGally)
+library(reactablefmtr)
+library(aplpack)
+library(Hotelling) 
+library(bcv)
+```
+
+```{r}
+
+hepatitis<-read.csv(url("https://archive.ics.uci.edu/ml/machine-learning-databases/hepatitis/hepatitis.data"),header = T)
+
+reactable(hepatitis,rownames = TRUE)
+```
+
+Since the columns of the database have different names than what their attributes indicate, we proceed to change the names of the columns with their respective attribute information. In the same way, the information of its attributes is replaced depending on its type (i.e. Class: Die, Death, ...)
+
+```{r}
+
+colnames(hepatitis)<-c("Class","Age","Sex","Steroid","Antivirals","Fatigue","Malaise","Anorexia","Liver Big","Liver Firm","Spleen Palpable","Spiders","Ascites","Varices","Bilirubin","ALK Phosphate","SGOT","Albumin","Protime","Histology")
+
+hepatitis["Class"][hepatitis["Class"]==1]<-"Die" 
+hepatitis["Class"][hepatitis["Class"]==2]<-"Live" 
+hepatitis["Sex"][hepatitis["Sex"]==1]<-"Male"
+hepatitis["Sex"][hepatitis["Sex"]==2]<-"Female"
+hepatitis[hepatitis==1]<-"No"
+hepatitis[hepatitis==2]<-"Yes"
+hepatitis[hepatitis=="?"]<-NA
+reactable(hepatitis,rownames = TRUE)
+```
+
+#### Dataset Summary
+
+```{r}
+summary(hepatitis)
+```
+
+Note that numeric columns are of character type. Proceeds to convert them to numeric variables
+
+```{r}
+hepatitis$Class<-as.factor(unlist(hepatitis$Class))
+hepatitis$Age<-as.factor(unlist(hepatitis$Age))
+hepatitis$Sex<-as.factor(unlist(hepatitis$Sex))
+hepatitis$Steroid<-as.factor(unlist(hepatitis$Steroid))
+hepatitis$Antivirals<-as.factor(unlist(hepatitis$Antivirals))
+hepatitis$Fatigue<-as.factor(unlist(hepatitis$Fatigue))
+hepatitis$Malaise<-as.factor(unlist(hepatitis$Malaise))
+hepatitis$Anorexia<-as.factor(unlist(hepatitis$Anorexia))
+hepatitis$`Liver Big`<-as.factor(unlist(hepatitis$`Liver Big`))
+hepatitis$`Liver Firm`<-as.factor(unlist(hepatitis$`Liver Firm`))
+hepatitis$`Spleen Palpable`<-as.factor(unlist(hepatitis$`Spleen Palpable`))
+hepatitis$Spiders<-as.factor(unlist(hepatitis$Spiders))
+hepatitis$Ascites<-as.factor(unlist(hepatitis$Ascites))
+hepatitis$Varices<-as.factor(unlist(hepatitis$Varices))
+hepatitis$Bilirubin<-as.numeric(unlist(hepatitis$Bilirubin))
+hepatitis$`ALK Phosphate`<-as.numeric(unlist(hepatitis$`ALK Phosphate`))
+hepatitis$SGOT<-as.numeric(unlist(hepatitis$SGOT))
+hepatitis$Albumin<-as.numeric(unlist(hepatitis$Albumin))
+hepatitis$Protime<-as.numeric(unlist(hepatitis$Protime))
+hepatitis$Histology<-as.factor(unlist(hepatitis$Histology))
+summary(hepatitis)
+```
+
+To deal with numerical missing values in the dataset, proceeds to replace the missing value of the column with the median
+
+```{r}
+hepatitis[,15:19]<-hepatitis[,15:19] %>% mutate_all(~ifelse(is.na(.x), median(.x, na.rm = TRUE), .x))
+summary(hepatitis)
+```
+
+## FBI Arrest Data - Reported Number of Arrests by Crime
+
+### About the Dataset
+
+This dataset contains the monthly number of reported arrests in the US for various offenses reported by participating law enforcement agencies. The arrests are by offense and broken down by age and sex or age and race. Not all agencies report race and/or ethnicity for arrests but they must report age and sex. Note that only agencies that have reported arrests for 12 months of the year are represented in the annual counts that are included in the database. Download this dataset to see totals of reported arrests for the nation from 1995--2016.
+
+The dataset was taken from de Federal Bureo of Investigation (FBI) Crime Data Explorer
+
+### Data Curation
+
+#### Initial Data Table
+
+```{r}
+
+FBI<-read.csv(url("https://s3-us-gov-west-1.amazonaws.com/cg-d3f0433b-a53e-4934-8b94-c678aa2cbaf3/arrests_national.csv"),row.names = 2,h = T)
+
+reactable(FBI,rownames = TRUE)
+```
+
+Since the id attribute is not used, it is removed from the dataset
+
+```{r}
+FBI$id<-NULL
+reactable(FBI,rownames = TRUE)
+```
+
+#### Dataset Summary
+
+```{r}
+summary(FBI)
+```
+
+## 1. Aspects of Multivariate Analysis
+
+### Aplications of Multivariate Methods
+
+-   Data reduction or structural simplification. The phenomenon being studied is represented as simply as possible without sacrificing valuable information. It is hoped that this will make interpretation easier.
+
+-   Sorting and grouping. Groups of "similar" objects or variables are created, based upon measured characteristics. Alternatively, rules for classifying objects into well-defined groups may be required.
+
+-   Investigation of the dependence among variables. The nature of the relation- ships among variables is of interest. Are all the variables mutually independent or are one or more variables dependent on the others? If so, how?
+
+-   Prediction. Relationships between variables must be determined for the purpose of predicting the values of one or more variables on the basis of observations on the other variables.
+
+-   Hypothesis construction and testing. Specific statistical hypotheses, formulated in terms of the parameters of multivariate populations, are tested. This may be done to validate assumptions or to reinforce prior convictions.
+
+### Descriptive Statistics
+
+#### Sample Mean
+
+Can be computed from the $n$ measures on each of the $p$ variables, so that, in general, there will be $p$ sample means:
+
+$$
+\overline{X}_{k} = \frac{1}{n}\sum_{j=1}^n x_{jk} \text{ where } k=1,2,3,...,p
+$$
+
+#### Sample Variance
+
+A measure of spread defined for $n$ measures on each of the $p$. We have:
+
+$$
+s_k^2 = \frac{1}{n}\sum_{j=1}^n (x_{jk}-\overline{x}_k)^2 \text{ where } k=1,2,3,...,p
+$$
+
+#### Sample Covariance
+
+A measure of linear association between the $n$ measurements
+
+$$
+s_{ik} = \frac{1}{n}\sum_{j=1}^n (x_{ji}-\overline{x}_i)(x_{jk}-\overline{x}_k) \text{ where }i=1,2,3,...,p  \text{ and }k=1,2,3,...,p
+$$
+
+#### Sample Correlation Coeficient
+
+Correlation coefficients are indicators of the strength of the linear relationship between two different variables, $x$ and $y$. The sample correlation coefficient for the $i$th and $k$th variables is defined as
+
+$$
+r_{ik}=\frac{s_{ik}}{\sqrt{s_{ii}}\sqrt{s_{kk}}} \text{ where }i=1,2,3,...,p  \text{ and }k=1,2,3,...,p
+$$
+
+### Graphical Techniques
+
+For the graphical representation of the following techniques, see the application examples of:
+
+-   Hepatitis Disease
+
+-   FBI Arrest Data - Reported Number of Arrests by Crime
+
+#### Scatter Plot
+
+A scatter plot uses dots to represent values for two different numeric variables. The position of each dot on the horizontal and vertical axis indicates values for an individual data point. Scatter plots are used to observe relationships between variables.
+
+#### Chi-Plot
+
+The chi-plot is a graphical representation of the measures of local dependence with an easy interpretation and with more information regarding the usual measures of correlation.
+
+#### Box-Plot
+
+A box-plot is a standardized way of displaying the distribution of data based on a five number summary ("minimum", first quartile (Q1), median, third quartile (Q3), and "maximum"). It can tell you about your outliers and what their values are. It can also tell you if your data is symmetrical, how tightly your data is grouped, and if and how your data is skewed.
+
+#### Bubble Plot or Bubble Charts
+
+Bubble Plot are used when data needs a third dimension to provide richer information to viewers. A bubble plot is a relational chart designed to compare three variables.
+
+Unlike other three-dimensional charts that process and represent data across three axes (usually x, y, and z), a bubble chart is represented on two axes (x and y), and the size of the bubble communicates the third, vital piece of information.
+
+#### Stars Plot
+
+Suppose each data unit consists of non-negative observations on $p\geq2$ variables. In two dimensions, we can construct circles of a fixed (reference) radius with p equally spaced rays emanating from the center of the circle. The lengths of the rays represent the values of the variables. The ends of the rays can be connected with straight lines to form a star. Each star represents a multivariate observation, and the stars can be grouped according to their (subjective) similarities.
+
+#### Chernoff Faces
+
+People react to faces. Chernoff suggested representing $p$-dimensional observations as a two-dimensional face whose characteristics (face shape, mouth curvature, nose length, eye size, pupil position, and so forth) are determined by the measurements on the $p$ variables.
+
+As originally designed, Chernoff faces can handle up to 18 variables. The assignment of variables to facial features is done by the experimenter, and different choices produce different results. Some iteration is usually necessary before satisfactory representations are achieved.
+
+#### 3D Scatter Plot
+
+A 3D scatterplot is a three-dimensional graph that is useful for investigating desirable response values and operating conditions.
+
+#### Conditioning Plot
+
+A conditioning plot is a scatter plot of two variables when conditioned on a third variable. The third variable is called the conditioning variable. This variable can have both values either continuous or categorical. In the continuous variable, we created subsets by dividing them into a smaller range of values. In categorical variables, the subsets are created based on different categories.
+
+### Hepatitis Disease - Multivariate Data Description and Graphical Techniques
+
+#### R Libraries
+
+    library(dplyr)
+    library(scatterplot3d)
+    library(corrplot)
+    library(ggplot2)
+    library(GGally)
+
+#### Mean
+
+```{r}
+datatable(as.matrix(sapply(hepatitis[,15:19],function(x) mean(x, na.rm=TRUE))))
+```
+
+#### Variance
+
+```{r}
+datatable(var(hepatitis[,15:19],use = "complete.obs"))
+```
+
+#### Covariance
+
+```{r}
+datatable(cov(hepatitis[,15:19],use = "complete.obs"))
+```
+
+#### Correlation
+
+```{r}
+c=cor(hepatitis[,15:19])
+y=as.data.frame(c)
+y[y==1]<-" "
+y <- mutate_all(y, function(x) as.numeric(as.character(x)))
+
+
+reactable(as.data.frame.array((y)),
+defaultColDef = colDef(
+style = highlight_min_max(as.data.frame.array((y)))))
+```
+
+##### Correlation Plot
+
+```{r}
+corrplot(cor(hepatitis[,15:19],use = "complete.obs"),method="number")
+```
+
+```{r}
+corrplot(cor(hepatitis[,15:19],use = "complete.obs"),method="circle")
+```
+
+##### Correlation Test: P-Values
+
+```{r}
+hepatitis.rcorr = rcorr(as.matrix(hepatitis[,15:19]))
+hepatitis.p=hepatitis.rcorr$P
+reactable(as.data.frame.array(hepatitis.p),
+          defaultColDef = colDef(
+              style = highlight_min_max(as.data.frame.array(hepatitis.p))))
+```
+
+-   Since the values obtained from the correlation are very close to 0, it can be concluded that the values are not correlated with each other.
+
+-   Since the values obtained from the Pearson correlation test are less than 0.05, all the null hypotheses are rejected.
+
+#### Graphic Representation
+
+Based on the values obtained in the correlation, it's decided to explore the graphic representation between the SGOT and Bilirubin variables
+
+##### Scatter Plots
+
+```{r}
+ggplot(hepatitis, aes(x = Bilirubin, 
+                      y = SGOT, 
+                      color=Class)) +
+     geom_point() +
+     labs(title = "Bilirubin vs SGOT by Class")
+
+ggplot(hepatitis, aes(x = Bilirubin, 
+                      y = SGOT, 
+                      color=Anorexia,
+                      shape=Class)) +
+     geom_point(
+       
+     ) +
+     labs(title = "Bilirubin vs SGOT by Class and Anorexia")
+
+ggplot(hepatitis, aes(x = Bilirubin, 
+                      y = SGOT, 
+                      color=Anorexia,
+                      shape=Antivirals)) +
+     geom_point(
+       
+     ) +
+     labs(title = "Bilirubin vs SGOT by Anorexia and Antivirals")
+
+ggplot(hepatitis, aes(x = Bilirubin, 
+                      y = SGOT, 
+                      color=Fatigue,
+                      size=as.numeric(Age))) +
+     geom_point(
+       
+     ) +
+     labs(title = "Bilirubin vs SGOT by Fatigue and Age")
+
+ggplot(hepatitis, aes(x = Bilirubin, 
+                      y = SGOT, 
+                      color=Class,
+                      size=as.numeric(Age))) +
+     geom_point(
+       
+     ) +
+     labs(title = "Bilirubin vs SGOT by Class and Age")
+```
+
+##### Pearson Correlations Above the Diagonal
+
+```{r}
+ggscatmat(hepatitis, columns=16:19, color="Class")
+```
+
+### FBI Arrest Data - Multivariate Data Description and Graphical Techniques
+
+#### R Libraries
+
+    library(dplyr)
+    library(MVA)
+    library(aplpack)
+    library(scatterplot3d)
+    library(corrplot)
+    library(ggplot2)
+
+#### Mean
+
+```{r}
+datatable(as.matrix(sapply(FBI,function(x) mean(x, na.rm=TRUE))))
+```
+
+#### Variance
+
+```{r}
+reactable(var(FBI,use = "complete.obs"))
+```
+
+#### Covariance
+
+```{r}
+reactable(cov(FBI,use = "complete.obs"))
+```
+
+#### Correlation
+
+```{r}
+c=cor(FBI)
+y=as.data.frame(c)
+y[y==1]<-" "
+y <- mutate_all(y, function(x) as.numeric(as.character(x)))
+
+
+reactable(as.data.frame.array((y)),
+defaultColDef = colDef(
+style = highlight_min_max(as.data.frame.array((y)))))
+```
+
+##### Correlation Plot
+
+```{r}
+corrplot(cor(FBI,use = "complete.obs"),method="circle")
+```
+
+##### Correlation Test: P-Values
+
+```{r}
+FBI.rcorr = rcorr(as.matrix(FBI))
+FBI.p=FBI.rcorr$P
+
+reactable(as.data.frame.array(FBI.p),
+          defaultColDef = colDef(
+              style = highlight_min_max(as.data.frame.array(FBI.p))))
+```
+
+-   As can be seen in the correlation plot, it can be seen that almost all the variables are correlated with each other.
+
+-   The values highlighted on the correlation matrix in green, represent the variables that are most correlated with each other.
+
+-   The values highlighted on the correlation test table in green, represent the highest p-values of variables that are most correlated with each other. This p-values non-reject the nule hypothesis.
+
+#### Graphic Representation
+
+Considering the attributes in the correlation matrix that are most correlated positively with each other (values greater than 0.95):
+
+-   aggravated_assault with violent_crime
+-   violent_crime with homicide
+-   violent_crime with stolen_property
+-   aggravated_assault with fraud
+-   fraud with arson
+-   homicide with weapons
+-   forgery with other_sex_offenses
+-   prostitution with drunkeness
+-   prostitution with curfew_loite_ring
+-   drug_abuse with embezzlement
+-   drug_abuse with vagrancy
+-   dui with liquor_laws
+
+Some of the mentioned attributes are taken to perform several graphs.
+
+##### Scatter Plots
+
+```{r}
+ggplot(FBI, aes(x=violent_crime, y=aggravated_assault)) + geom_point()+labs(title = "Violent Crime vs Aggravated Assault")
+
+ggplot(FBI, aes(x=violent_crime, y=aggravated_assault,label=rownames(FBI))) + geom_text()+labs(title = "Violent Crime vs Aggravated Assault using Row Names")
+
+ggplot(FBI, aes(x=violent_crime, y=homicide)) + geom_point()+labs(title = "Violent Crime vs Homicide")
+
+ggplot(FBI, aes(x=violent_crime, y=homicide,label=rownames(FBI))) + geom_text()+labs(title = "Violent Crime vs Homicide using Row Names")
+```
+
+##### Bubble Charts
+
+```{r}
+ggplot(FBI, aes(x=violent_crime, y=aggravated_assault,size=homicide)) + geom_point(alpha=0.5)+scale_size(range=c(.1,15))+labs(title = "Violent Crime vs Aggravated Assault and Homicide")
+
+ggplot(FBI, aes(x=violent_crime, y=aggravated_assault,size=fraud)) + geom_point(alpha=0.5)+scale_size(range=c(.1,15))+labs(title = "Violent Crime vs Aggravated Assault and Fraud")
+```
+
+##### Chernoff Faces
+
+```{r}
+df<-data.frame(FBI$aggravated_assault,FBI$violent_crime,FBI$homicide,FBI$stolen_property,FBI$fraud,FBI$arson,FBI$prostitution,FBI$other_sex_offenses,FBI$drunkenness,FBI$dui,FBI$liquor_laws,FBI$drug_abuse,FBI$curfew_loitering,FBI$embezzlement,FBI$vagrancy)
+
+faces(df, main="United States FBI Arrest Data",face.type=0, print.info=TRUE,labels = rownames(FBI))
+```
+
+## 2. The Multivariate Normal Distribution
+
+### The Plausibility of $\mu_0$ as a Value for a Normal Population Mean
+
+Recall the univariate theory for determining whether a specific value $\mu_0$ is a plausible value for the population mean $\mu$
+
+-   View of Hypothesis Testing: Can be formulated as:
+
+    -   $H_0:\mu=\mu_0$
+
+    -   $H_1:\mu\not= \mu_0$
+
+Where $H_0$ is the null hypothesis and $H_1$ the alternative hypothesis
+
+-   Be a random sample from a normal population $X_1,…,X_n$, the appropiate test has a student's $t$ distribution with n-1 degrees of freedom as:
+
+    $$t=\frac{(\overline{X}-\mu_0)}{\frac{s}{\sqrt{n}}}$$ where:
+
+$$
+\overline{X}=\frac{1}{n}\sum_{j=1}^{n} X_j  \text{  and } s^2=\frac{1}{n-1}\sum_{j=1}^n (X_j-\overline{X})^2
+$$
+
+-   Rejecting $H_0$ when $\mid t\mid$ is large is equivalent to rejecting $H_0$ if $t^2$ is large.
+
+-   Be $t^2$ the square distance from the sample mean $\overline{X}$ to the test value $\mu_0$:
+
+    $$
+    t^2=\frac{(\overline{X}-\mu_0)^2}{\frac{s^2}{n}}=n(\overline{X}-\mu_0)^2(s^2)^{-1}
+    $$
+
+    With the observation of $\overline{X}$ and $s^2$, the test becomes: Reject $H_0$ in favor of $H_1$ at significance level $\alpha$ if
+
+$$
+n(\overline{X}-\mu_0)^2(s^2)^{-1}>t^2_{n-1}{\alpha}/{2}
+$$
+
+where $t_{n-1}(\alpha/2)$ denotes the upper 100$(\alpha/2)$th percentile of the $t$-distribution with $n-1$ degrees of freedom.
+
+-   If $H_0$ is not rejected, we conclude that $\mu_0$ is a plausible value for the normal population mean.
+
+### The Statistic Hotelling's $T^2$
+
+A generalization of the square distance between the sample mean $\overline{X}$ to the test value $\mu_0$ is:
+
+$$
+T^2=\left(\overline{X}-\mu_0\right)'\left(\frac{1}{n}S\right)^{-1}\left(\overline{X}-\mu_0\right)=n\left(\overline{X}-\mu_0\right)'S^{-1}\left(\overline{X}-\mu_0\right)
+$$
+
+where:
+
+$$
+\overline{X}_{(p\times 1)} = \frac{1}{n}\sum_{j=1}^n X_j, S_{(p\times p)}=\frac{1}{n-1}\sum_{j=1}^n\left(X_j-\overline{X}\right)\left(X_j-\overline{X}\right)' \text{ and } \mu_0=\begin{bmatrix}
+           \mu_{10} \\
+           \mu_{20} \\
+           \vdots \\
+           \mu_{p0}
+         \end{bmatrix}
+$$
+
+The hypothesis $H_0:\mu=\mu_0$ is rejected if the observed statistical distance $T^2$ is too large (i.e. if $\overline{x}$ is too far from $\mu_0$ )
+
+The special tables of $T^2$ turns out when the percentage points are not required for formal test of hypothesis. It's true because:
+
+$$T^2 \text{is distributed as }\frac{(n-1)p}{n-p}F_{p,n-p}$$ where $F_{p,n-p}$ denotes a random variable with an $F-$ distribution with $p$ and $n-1$ degrees of freedom.
+
+### Summarize
+
+Let $\mathbf{X}_1…,\mathbf{X}_n$ be a random sample from an $N_p(\mu,\Sigma)$ population. Then with $\mathbf{\overline{X}}=\frac{1}{n}\sum_{j=1}^n\mathbf{X}_j$ and $S=\frac{1}{n-1}\sum_{j=1}^n(X_j-\overline{X})(X_j-\overline{X})'$,
+
+$$\alpha=P\left[T^2>\frac{(n-1)p}{n-p}F_{p,n-p}(\alpha)\right]$$
+
+$$
+=P\left[n\left(\overline{X}-\mu\right)'S^{-1}\left(\overline{X}-\mu\right)>\frac{(n-1)p}{n-p}F_{p,n-p}(\alpha)\right]
+$$
+
+whatever the true $\mu$ and $\Sigma$. Here $F_{p,n-p}(\alpha)$ is the upper (100$\alpha$)th percentile of the $F_{p,n-p}$ distribution.
+
+### Hepatitis Disease - Hotelling's $T^2$ Test
+
+#### R Libraries
+
+    library(Hotelling) 
+
+#### Hotelling's $T^2$ Test with all Attributes by Class
+
+```{r}
+t2testsparr <- hotelling.test(hepatitis$Bilirubin + hepatitis$`ALK Phosphate` + hepatitis$SGOT + 
+                                  hepatitis$Albumin + hepatitis$Protime ~ hepatitis$Class)
+
+t2testsparr
+```
+
+-   The Hotteling $T^2$ value was statistically significant (i.e. there is evidence about mean difference with live and death people considering the 5 numeric attributes values)
+
+    -   $T^2=71.979$ with 5 and 148 degrees of freedom.
+    -   $p$-value=$3.243e-11$ The null hypothesis is rejected and the alternative is non rejected.
+
+#### Hotelling's $T^2$ Test with all Attributes by Sex
+
+```{r}
+t2testsparr <- hotelling.test(hepatitis$Bilirubin + hepatitis$`ALK Phosphate` + hepatitis$SGOT + 
+                                  hepatitis$Albumin + hepatitis$Protime ~ hepatitis$Sex)
+
+t2testsparr
+```
+
+-   The Hotteling $T^2$ value was not statistically significant (i.e. there is evidence about mean difference with Male and Female people considering the 5 numeric attributes values)
+
+    -   $T^2=2.5208$ with 5 and 148 degrees of freedom.
+    -   $p$-value=$0.7827$ The null hypothesis is non rejected and the alternative is rejected.
+
+## 3. Wishart Distribution - Definition
+
+### The Wishart Distribution
+
+The Wishart distribution is a family of distributions for symmetric positive definite matrices. Let $\mathbf{X_1,X_2,…,X_n}$ be independent $N_p(\mathbf{0},\Sigma)$ and form a $p × n$ data matrix $X = [X_1,...,X_n]$. The distribution of a $p × p$ random matrix $\mathbf{M = XX}′=\sum_{i=1}^n \mathbf{X}_i\mathbf{X}_i'$ is said to have the Wishart distribution.
+
+### Definition
+
+The random matrix $\mathbf{M}(p×p) = \sum_{i=1}^n \mathbf{X}_i\mathbf{X}_i'$ has the Wishart distribution with n degrees of freedom and covariance matrix $\Sigma$ and is denoted by $\mathbf{M} ∼ W_p(n, \Sigma)$. For n ≥ p, the probability density function of M is
+
+$$ 
+f(\mathbf{X}) = \frac{1}{2^{np/2}\Gamma_p \left(\frac{n}{2}\right) \left| \Sigma \right|^{n/2}} \left| \mathbf{M} \right|^{(n-1-p)/2}\exp \left( -\frac{1}{2}\text{trace}(\Sigma^{-1}\mathbf{M}) \right)
+$$
+
+with respect to Lebesque measure on the cone of symmetric positive definite matrices. Here, $\Gamma_p(\alpha)$ is the multivariate gamma function.
+
+The precise form of the density is rarely used. Two exceptions are:
+
+- In Bayesian computation, the Wishart distribution is often used as a conjugate prior for the inverse of normal covariance matrix.
+
+- When symmetric positive definite matrices are the random elements of interest in diffusion tensor study.
+
+The Wishart distribution is a multivariate extension of $\chi^2$ distribution. In particular, if $\mathbf{M} ∼ W_1(n, \sigma_2)$, then $\mathbf{M}/σ^2 ∼ \chi^2$n. For a special case $Σ = \mathbb{I}, W_p(n, \mathbb{I})$ is called the standard Wishart distribution.
+
+## 4. Principal Component Analysis
+
+### What is Principal Component Analysis (PCA)
+
+PCA is a dimensionality-reduction method that is often used to reduce the dimensionality of large data sets, by transforming a large set of variables into a smaller one that still contains most of the information in the large set.
+
+Reducing the number of variables of a data set naturally comes at the expense of accuracy, but the trick in dimensionality reduction is to trade a little accuracy for simplicity. Because smaller data sets are easier to explore and visualize and make analyzing data much easier and faster for machine learning algorithms without extraneous variables to process.
+
+### Explanation of Principal Component Analysis (Steps)
+
+#### 1. Standarization
+
+The aim of this step is to standardize the range of the continuous initial variables so that each one of them contributes equally to the analysis.
+
+More specifically, the reason why it is critical to perform standardization prior to PCA, is that the latter is quite sensitive regarding the variances of the initial variables.
+
+Mathematically, this can be done by subtracting the mean and dividing by the standard deviation for each value of each variable.
+
+Once the standardization is done, all the variables will be transformed to the same scale.
+
+#### 2. Covariance Matrix Computation
+
+The covariance matrix is a $p\times p$ symmetric matrix (where $p$ is the number of dimensions) that has as entries the covariances associated with all possible pairs of the initial variables.
+
+The aim of this step is to understand how the variables of the input data set are varying from the mean with respect to each other, or in other words, to see if there is any relationship between them.
+
+#### 3. Compute The Eigenvectors And Eigenvalues of the Covariance Matrix to Identify the Principal Components
+
+Principal components are new variables that are constructed as linear combinations or mixtures of the initial variables. These combinations are done in such a way that the new variables (i.e., principal components) are uncorrelated and most of the information within the initial variables is squeezed or compressed into the first components.
+
+Organizing information in principal components will allow you to reduce dimensionality without losing much information, and this by discarding the components with low information and considering the remaining components as your new variables.
+
+An important thing to realize here is that the principal components are less interpretable and don't have any real meaning since they are constructed as linear combinations of the initial variables.
+
+Geometrically speaking, principal components represent the directions of the data that explain a maximal amount of variance, that is to say, the lines that capture most information of the data. The relationship between variance and information here, is that, the larger the variance carried by a line, the larger the dispersion of the data points along it, and the larger the dispersion along a line, the more the information it has.
+
+#### 4. Feature Vector
+
+What we do is, to choose whether to keep all these components or discard those of lesser significance (of low eigenvalues), and form with the remaining ones a matrix of vectors that we call Feature vector.
+
+#### 5. Final Step: Recast the Data Along the Principal Component Axes
+
+The aim is to use the feature vector formed using the eigenvectors of the covariance matrix, to reorient the data from the original axes to the ones represented by the principal components (hence the name Principal Components Analysis). This can be done by multiplying the transpose of the original data set by the transpose of the feature vector.
+
+### Hepatitis Desease - PCA
+
+#### R Libraries
+
+    library(Hmisc)
+    library(psych)
+    library(bcv)
+
+#### Correlation Matrix
+
+```{r}
+cor(hepatitis[,15:19])
+```
+
+#### Principal Components Based in Correlation Matrix
+
+```{r}
+heppca<- prcomp(hepatitis[,15:19],scale=TRUE)
+summary(heppca)
+```
+
+##### Selection of Principal Components - Importance of Components
+
+- Standard Deviation: when values are greater than 1, 1 component are selected (PC1)
+- Proportion of Variance: when the percentage is greater than 70% of the total variation (none)
+
+#### Components Variances Bar Plot
+
+```{r}
+plot(heppca, xlab="Components")
+```
+
+#### Components Variances Scree Plot 
+
+```{r}
+plot(heppca, type="lines")
+```
+
+#### Components Selection
+
+##### svd.gabriel
+
+```{r}
+numcomp<-cv.svd.gabriel(cor(hepatitis[,15:19]), krow = 2, kcol = 2,  maxrank = 2)
+numcomp
+```
+
+From the above result, 1 component is selected
+
+##### svd.wold
+
+```{r}
+numcomp1<-cv.svd.wold(cor(hepatitis[,15:19]), k=5, maxrank=5)
+numcomp1
+```
+
+From the above result, 1 component is selected
+
+##### Component 1 and Component 2 Biplot of Variables and Individuals
+
+```{r}
+biplot(heppca,cex=c(0.4,0.5),expand = 1)
+```
+
+- Most of the people has their values with respect to the variables with more weight in each component are closer to their respective averages.
+
+#### Correlation vs Principal Components Bar Plot
+
+```{r}
+hep.cpr <- heppca$rotation %*% diag(heppca$sdev)
+barplot(t(hep.cpr), beside = TRUE, ylim = c(-1, 1))
+```
+
+#### Principal Component 1 vs Bilirubin Scatter Plot
+
+```{r}
+par(mfrow=c(1,2))
+plot(heppca$x[,1],hepatitis$Bilirubin,xlab="PC1")
+plot(heppca$x[,2],hepatitis$Bilirubin,xlab="PC2")
+```
+
+#### Linear Regression Using 2 Hold Components to Explain the Bilirubin Attribute
+
+```{r}
+modlin<- lm(hepatitis$Bilirubin~heppca$x[,1]+heppca$x[,2])
+summary(modlin)
+```
+
+Since the $R^2=0.4683$, the linear regression model is rejected.
+
+### FBI Arrest Data - PCA
+
+For simplicity is considering the attributes in the correlation matrix that are most correlated positively with each other (values greater than 0.95):
+
+-   aggravated_assault with violent_crime
+-   violent_crime with homicide
+-   violent_crime with stolen_property
+-   aggravated_assault with fraud
+-   fraud with arson
+-   homicide with weapons
+-   forgery with other_sex_offenses
+-   prostitution with drunkeness
+-   prostitution with curfew_loite_ring
+-   drug_abuse with embezzlement
+-   drug_abuse with vagrancy
+-   dui with liquor_laws
+
+#### R Libraries
+
+    library(Hmisc)
+    library(psych)
+    library(bcv)
+
+#### Bartlett's Test
+
+##### Matrix of Correlations and P-Values
+
+###### Correlation
+
+```{r}
+df<-data.frame(FBI$aggravated_assault,FBI$violent_crime,FBI$homicide,FBI$stolen_property,FBI$fraud,FBI$arson,FBI$prostitution,FBI$other_sex_offenses,FBI$drunkenness,FBI$dui,FBI$liquor_laws,FBI$drug_abuse,FBI$curfew_loitering,FBI$embezzlement,FBI$vagrancy,row.names = rownames(FBI))
+
+c=cor(df)
+y=as.data.frame(c)
+y[y==1]<-" "
+y <- mutate_all(y, function(x) as.numeric(as.character(x)))
+
+
+reactable(as.data.frame.array((y)),
+defaultColDef = colDef(
+style = highlight_min_max(as.data.frame.array((y)))))
+```
+
+###### Correlation Test: P-Values
+
+```{r}
+FBI.rcorr = rcorr(as.matrix(df))
+FBI.p=FBI.rcorr$P
+
+reactable(as.data.frame.array(FBI.p),
+          defaultColDef = colDef(
+              style = highlight_min_max(as.data.frame.array(FBI.p))))
+```
+
+##### Bartlett's test
+
+```{r}
+cortest.bartlett(df)
+```
+
+Since the p-value is less than 0.05, the null hypothesis is rejected.
+
+#### Kaiser-Meyer-Olkin (KMO) Test
+
+The Kaiser-Meyer-Olkin (KMO) Test is a test that is used to decide whether our samples are suitable for conducting factor analysis. Factor analysis in statistics is about identifying underlying factors or causes that can be used to represent the relationship between two or more variables.
+
+#### KMO Test
+
+```{r}
+KMO(df)
+```
+
+Since the KMO Overall Value is 0.73 and when the value is above 0.5. This indicate that the sampling is adequate and is well suited for PCA. 
+
+#### Principal Component Analysis (Using the Covariance Matrix)
+
+##### Variance
+
+```{r}
+reactable(var(df,use = "complete.obs"))
+```
+
+##### Principal Components
+
+```{r}
+FBIPCA<- prcomp(df,scale=T)
+```
+
+##### Summary of Principal Components
+
+```{r}
+summary(FBIPCA)
+```
+
+##### Selection of Principal Components - Importance of Components
+
+- Standard Deviation: when values are greater than 1, 2 components are selected (PC1,PC2)
+- Proportion of Variance: when the percentage is greater than 70% of the total variation (PC1) 
+
+
+##### Principal Components Variance Bar Plot
+
+```{r}
+plot(FBIPCA)
+```
+
+##### Principal Components Variance Scree Plot
+
+```{r}
+plot(FBIPCA,type="lines")
+```
+
+##### Biplots
+
+###### Principal Component 1 and Principal Component 2
+
+```{r}
+biplot(FBIPCA,cex=c(0.4,0.5),expand = 1)
+```
+
+- The average year is 2003 their values with respect to the variables with more weight in each component are closer to their respective averages.
+
+- Since 2013, there are the lowest values with respect to the variables.
+
+- It can be said that crimes have decreased over the years.
+
+#### Components Selection
+
+##### svd.gabriel
+
+```{r}
+cv.svd.gabriel(x = cov(df), krow = 15, kcol = 15, maxrank = 14)
+```
+
+From the above result, 12 components are selected
+
+##### svd.wold
+
+```{r}
+cv.svd.wold(cov(df), k=15, maxrank=14)
+```
+
+From the above result, 3 components are selected
+
+## 5. References
+
+-   Centers for Disease Control and Prevention. (2020, July 28). What is viral hepatitis? Centers for Disease Control and Prevention. Retrieved August 21, 2022, from <https://www.cdc.gov/hepatitis/abc/index.htm>
+
+-   Steroids \| Side-effects, uses, time to work. (n.d.). Versus Arthritis; www.versusarthritis.org. Retrieved August 21, 2022, from [https://www.versusarthritis.org/about-arthritis/treatments/drugs/steroids/\@ClevelandClinic](https://www.versusarthritis.org/about-arthritis/treatments/drugs/steroids/@ClevelandClinic){.uri}. (n.d.).
+
+-   Antivirals: Antiviral Medication, What they treat & How they work. Cleveland Clinic; my.clevelandclinic.org. Retrieved August 21, 2022, from <https://my.clevelandclinic.org/health/drugs/21531-antiviralsLuo>, E. K. (2019, July 4). Malaise:
+
+-   Causes, Diagnosis and Treatments. Healthline; www.healthline.com. <https://www.healthline.com/health/malaiseBhandari>, S. (2020, July 20). Anorexia Nervosa:Symptoms,
+
+-   Causes, Diagnosis, Treatment. WebMD; www.webmd.com. <https://www.webmd.com/mental-health/eating-disorders/anorexia-nervosa/mental-health-anorexia-nervosa>
+
+-   Luo, Elaine K. "Malaise: Causes, Diagnosis and Treatments." Healthline. www.healthline.com, July 4, 2019. <https://www.healthline.com/health/malaise.Bhandari>, Smitha . "Anorexia Nervosa:Symptoms
+
+-   Causes, Diagnosis, Treatment." WebMD. www.webmd.com, July 20, 2020. <https://www.webmd.com/mental-health/eating-disorders/anorexia-nervosa/mental-health-anorexia-nervosa.Versus>
+
+-   Arthritis. "Steroids \| Side-Effects, Uses, Time to Work." www.versusarthritis.org. Accessed August 21, 2022. [https://www.versusarthritis.org/about-arthritis/treatments/drugs/steroids/.\@ClevelandClinic](https://www.versusarthritis.org/about-arthritis/treatments/drugs/steroids/.@ClevelandClinic){.uri}.
+
+-   "Antivirals: Antiviral Medication, What They Treat & How They Work." Cleveland Clinic. my.clevelandclinic.org. Accessed August 21, 2022. [https://my.clevelandclinic.org/health/drugs/21531-antivirals.\@ClevelandClinic](https://my.clevelandclinic.org/health/drugs/21531-antivirals.@ClevelandClinic){.uri}.
+
+-   "Spleen: Spleen Function, Enlarged Spleen, What Does the Spleen Do." Cleveland Clinic. my.clevelandclinic.org. Accessed August 21, 2022. [https://my.clevelandclinic.org/health/body/21567-spleen.\@ClevelandClinic](https://my.clevelandclinic.org/health/body/21567-spleen.@ClevelandClinic){.uri}.
+
+-   "Ascites: Fluid Buildup, Causes, Symptoms & Treatment." Cleveland Clinic. my.clevelandclinic.org. Accessed August 21, 2022. <https://my.clevelandclinic.org/health/diseases/14792-ascites.Spider> angioma
+
+-   Information \| Mount Sinai - New York. "Spider Angioma Information \| Mount Sinai - New York." www.mountsinai.org. Accessed August 21, 2022. [https://www.mountsinai.org/health-library/diseases-conditions/spider-angioma.\@ClevelandClinic](https://www.mountsinai.org/health-library/diseases-conditions/spider-angioma.@ClevelandClinic){.uri}.
+
+-   "Bilirubin Test: Test Details & Results." Cleveland Clinic. my.clevelandclinic.org. Accessed August 21, 2022. <https://my.clevelandclinic.org/health/diagnostics/17845-bilirubin>
+
+-   Sethi Saurabh . "What Are Esophageal Varices? Types, Treatments, and More." What are esophageal varices? Types, treatments, and more. www.medicalnewstoday.com, May 29, 2020. <https://www.medicalnewstoday.com/articles/esophageal-varices>
+
+-   Robinson Jennifer . "Alkaline Phosphatase Test (ALP): High vs. Low Levels." WebMD. www.webmd.com, May 20, 2021. <https://www.webmd.com/digestive-disorders/alkaline_phosphatase_test.National>
+
+-   Cancer Institute. "NCI Dictionary of Cancer Terms." www.cancer.gov. Accessed August 21, 2022. <https://www.cancer.gov/publications/dictionaries/cancer-terms/def/sgot>
+
+-   Albumin blood (serum) test Information \| Mount Sinai - New York. "Albumin - Blood (Serum) Test Information \| Mount Sinai - New York." www.mountsinai.org. Accessed August 21, 2022. <https://www.mountsinai.org/health-library/tests/albumin-blood-serum-test>.
+
+-   Prothrombin time test Mayo Clinic. "Prothrombin Time Test - Mayo Clinic." www.mayoclinic.org, December 8, 2020. <https://www.mayoclinic.org/tests-procedures/prothrombin-time/about/pac-20384661>.
+
+-   Federal Bureau Investigation, ed. "Crime Data Explorer." FBI. crime-data-explorer.fr.cloud.gov. Accessed August 21, 2022. <https://crime-data-explorer.fr.cloud.gov/pages/downloads#datasets>
+
+-   Gong, Gail . "Hepatitis." UC Irvine Machine Learning Repository, November 1, 1988. <https://archive-beta.ics.uci.edu/ml/datasets/hepatitis>
+
+-   Federal Bureau Investigation, ed. "FBI National Arrests." FBI. Accessed August 21, 2022. <https://s3-us-gov-west-1.amazonaws.com/cg-d3f0433b-a53e-4934-8b94-c678aa2cbaf3/arrests_national.csv>
+
+-   Investopedia. "Correlation Coefficients: Positive, Negative, & Zero." www.investopedia.com, May 31, 2021. <https://www.investopedia.com/ask/answers/032515/what-does-it-mean-if-correlation-coefficient-positive-negative-or-zero.asp>
+
+-   Yi, Mike. "Scatter Plots \| A Complete Guide to Scatter Plots." Chartio. chartio.com. Accessed August 21, 2022. <https://chartio.com/learn/charts/what-is-a-scatter-plot/>
+
+-   TIBCO Software. "What Is a Bubble Chart? \| TIBCO Software." www.tibco.com. Accessed August 21, 2022. <https://www.tibco.com/reference-center/what-is-a-bubble-chart>
+
+-   Galarnyk, Michael. "Understanding Boxplots. The Image above Is a Boxplot. A Boxplot... \| by Michael Galarnyk \| Towards Data Science." Medium. towardsdatascience.com, July 6, 2020. <https://towardsdatascience.com/understanding-boxplots-5e2df7bcbd51>
+
+-   Interpret the key results for 3D Scatterplot - Minitab. "Interpret the Key Results for 3D Scatterplot - Minitab." support.minitab.com. Accessed August 21, 2022. <https://support.minitab.com/en-us/minitab/21/help-and-how-to/graphs/3d-scatterplot/interpret-the-results/key-results/>
+
+-   GeeksforGeeks. "Conditioning Plot - GeeksforGeeks." www.geeksforgeeks.org, March 7, 2021. <https://www.geeksforgeeks.org/conditioning-plot/>
+
+-   Jaadi, Zakaria . "A Step-by-Step Explanation of Principal Component Analysis (PCA) \| Built In." Built In. builtin.com, April 1, 2021. <https://builtin.com/data-science/step-step-explanation-principal-component-analysis>
+
+-   Admin. "KMO Test (for Measuring Sampling Adequacy) - All Things Statistics." All Things Statistics. allthingsstatistics.com, July 17, 2021. <https://allthingsstatistics.com/inferential-statistics/kmo-test/>
+
+-   Viliam Simko, Taiyun Wei. "An Introduction to Corrplot Package." An Introduction to corrplot Package. cran.r-project.org, November 18, 2021. <https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html>
+
+-   Kabacoff, Rob. "Data Visualization with R." Data Visualization with R. rkabacoff.github.io. Accessed August 21, 2022. <https://rkabacoff.github.io/datavis/Multivariate.html>.
+
+-   Vitor A. A. Marchi, Francisco A. R. Rojas, Francisco Louzada, The Chi-plot and Its Asymptotic Confidence Interval for Analyzing Bivariate Dependence: An Application to the Average Intelligence and Atheism Rates across Nations Data, J. data sci. 10(2022), no. 4, 711-722, DOI 10.6339/JDS.2012.10(4).1094
+
+```{r, include=FALSE}
+options(warn = defaultW)
+```
+
